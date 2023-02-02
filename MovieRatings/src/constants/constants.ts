@@ -1,0 +1,13 @@
+export const LOGIN = 'Login';
+export const SIGNUP = 'Signup';
+export const RATINGS = 'Ratings';
+export const CHANGEPASSWORD = 'CHANGEPASSWORD';
+export const CHANGEEMAIL = 'CHANGEEMAIL';
+export const CHANGECPASSWORD = 'CHANGECPASSWORD';
+export const CHANGEUSERNAME = 'CHANGEUSERNAME';
+export const ADDERROR = 'ADDERROR';
+export const ERROR = '* This field is required';
+export const CONFIRMERROR = '* This field should be equal to password';
+export const SETFOCUS = 'SETFOCUS';
+export const RESET = 'RESET';
+export const CHANGELOGGEDINSTATUS = 'CHANGELOGGEDINSTATUS';
