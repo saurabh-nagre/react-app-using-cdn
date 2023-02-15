@@ -1,4 +1,5 @@
 import React, {useEffect, useReducer} from 'react';
+
 import {
   FlatList,
   Image,
@@ -11,7 +12,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
-import {Arguments, Details} from '../interfaces/interfaces';
+import {Action, Arguments, Details} from '../interfaces/interfaces';
 
 import * as helpers from '../helpers/helpers';
 import * as actions from '../actions/flateListActions';
@@ -25,23 +26,29 @@ const initialArgs: Arguments = {
   userList: [],
   isLoading: false,
   searchInput: '',
-  url: constants.USER_LIST_API_ENDPOINT,
+  url: '',
   isRefreshing: true,
-  page: 1,
-  isFocused: false,
+  page: 2,
+  isFetching: true,
 };
 
-const reducer = (
-  state: Arguments,
-  action: {type: string; payload: Object},
-): Arguments => {
+const reducer = (state: Arguments, action: Action): Arguments => {
   switch (action.type) {
     case constants.UPDATE_USER_LIST:
       return {...state, userList: action.payload};
     case constants.INCREASE_PAGE_NO:
       return {...state, page: action.payload};
     case constants.EXTEND_USER_LIST:
-      return {...state, userList: [...state.userList, ...action.payload]};
+      let list: string[] = [];
+      action.payload.forEach(ele => {
+        list.push(ele.login);
+      });
+      let isRepeated = state.userList.some(value => {
+        return list.includes(value.login);
+      });
+      return isRepeated
+        ? state
+        : {...state, userList: [...state.userList, ...action.payload]};
     case constants.UPDATE_ISLOADING:
       return {...state, isLoading: action.payload};
     case constants.UPDATE_SEARCH_INPUT:
@@ -50,8 +57,8 @@ const reducer = (
       return {...state, url: action.payload};
     case constants.UPDATE_IS_REFRESHING:
       return {...state, isRefreshing: action.payload};
-    case constants.UPDATE_IS_FOCUSED:
-      return {...state, isFocused: action.payload};
+    case constants.UPDATE_IS_FEACHING:
+      return {...state, isFetching: action.payload};
     default:
       return initialArgs;
   }
@@ -65,124 +72,118 @@ const WithComponentList = (Component: JSX.Element) => {
     const [state, dispatch] = useReducer(reducer, initialArgs);
 
     useEffect(() => {
-      state.searchInput === ''
-        ? dispatch(actions.urlUpdate(props.apiURL))
-        : dispatch(
-            actions.urlUpdate(
-              constants.USER_SEARCH_LIST_API_ENDPOINT +
-                '?q=' +
-                state.searchInput,
-            ),
-          );
+      if (!props.searchOnlyList) {
+        state.searchInput === ''
+          ? dispatch(actions.urlUpdate(props.apiURL))
+          : dispatch(
+              actions.urlUpdate(
+                constants.USER_SEARCH_LIST_API_ENDPOINT +
+                  '?q=' +
+                  state.searchInput,
+              ),
+            );
+      }
       dispatch(actions.pageNoUpdate(1));
-    }, [state.searchInput, props.apiURL]);
+    }, [state.searchInput, props]);
 
     useEffect(() => {
+      dispatch(actions.isFechingUpdate(false));
       const methodCall = async () => {
         dispatch(actions.isLoadingUpdate(true));
         await helpers
-          .GetDataHelper(state.url)
+          .GetDataHelper(
+            state.url === '' || props.searchOnlyList ? props.apiURL : state.url,
+          )
           .then(value => {
-            state.searchInput === ''
+            state.searchInput === '' || props.searchOnlyList
               ? dispatch(actions.userListUpdate(value.data))
               : dispatch(actions.userListUpdate(value.data.items));
-            dispatch(actions.pageNoUpdate(state.page + 1));
-            dispatch(actions.isLoadingUpdate(false));
+            dispatch(actions.pageNoUpdate(2));
           })
           .catch(reason => {
-            dispatch(actions.isLoadingUpdate(false));
             console.log(reason);
           });
+        dispatch(actions.isLoadingUpdate(false));
       };
       methodCall();
     }, [state.isRefreshing]);
 
-    const fetchMoreData = async () => {
-      if (state.searchInput !== '') {
+    const fetchData = async () => {
+      if (!state.isFetching) {
+        Keyboard.dismiss();
+        if (state.page === 1) {
+          dispatch(actions.isLoadingUpdate(true));
+        } else {
+          dispatch(actions.isFechingUpdate(true));
+        }
         if (props.searchOnlyList) {
           await helpers
-            .GetDataHelper(state.url + '&&page=' + state.page)
+            .GetDataHelper(props.apiURL + '?' + '&&page=' + state.page)
             .then(value => {
               let searchList: Details[] = [];
-              searchList = value.data.item.reduce(
-                (list: Details[], ele: Details) => {
-                  if (
-                    ele.login.includes(state.searchInput) ||
-                    ele.name.includes(state.searchInput)
-                  ) {
-                    list.push(ele);
-                  }
-                  return list;
-                },
-                searchList,
-              );
-              dispatch(actions.userListExtend(searchList));
+              if (state.searchInput !== '') {
+                searchList = value.data.reduce(
+                  (list: Details[], ele: Details) => {
+                    if (
+                      (ele.login &&
+                        ele.login
+                          .toLowerCase()
+                          .includes(state.searchInput.toLowerCase())) ||
+                      (ele.name &&
+                        ele.name
+                          .toLowerCase()
+                          .includes(state.searchInput.toLowerCase()))
+                    ) {
+                      list.push(ele);
+                    }
+                    return list;
+                  },
+                  searchList,
+                );
+                state.page === 1
+                  ? dispatch(actions.userListUpdate(searchList))
+                  : dispatch(actions.userListExtend(searchList));
+              } else {
+                dispatch(actions.userListExtend(value.data));
+              }
             })
             .catch(reason => {
               console.log(reason);
             });
-        } else {
+        } else if (state.searchInput !== '') {
           await helpers
             .GetDataHelper(state.url + '&&page=' + state.page)
             .then(value => {
-              dispatch(actions.userListExtend(value.data.items));
+              state.page === 1
+                ? dispatch(actions.userListUpdate(value.data.items))
+                : dispatch(actions.userListExtend(value.data.items));
             })
             .catch(reason => {
               console.log(reason);
             });
         }
         dispatch(actions.pageNoUpdate(state.page + 1));
+        dispatch(actions.isLoadingUpdate(false));
+        dispatch(actions.isFechingUpdate(false));
       }
     };
 
-    const handleSearch = async () => {
-      dispatch(actions.isLoadingUpdate(true));
-      Keyboard.dismiss();
-      if (props.searchOnlyList) {
-        let searchList: Details[] = [];
-        searchList = state.userList.reduce((list, value) => {
-          if (
-            value.login.includes(state.searchInput) ||
-            value.name.includes(state.searchInput)
-          ) {
-            list.push(value);
-          }
-          return list;
-        }, searchList);
-
-        dispatch(actions.userListUpdate(searchList));
-      } else {
-        await helpers
-          .GetDataHelper(state.url)
-          .then(value => {
-            dispatch(actions.userListUpdate(value.data.items));
-            dispatch(actions.pageNoUpdate(state.page + 1));
-          })
-          .catch(reason => {
-            console.log(reason);
-          });
-      }
-      dispatch(actions.isFocusedUpdate(false));
-      dispatch(actions.isLoadingUpdate(false));
-    };
     return (
       <View style={[listStyles.body]}>
         <View style={[listStyles.back, styles.horizontalFlex]}>
           <TouchableOpacity
-            style={[listStyles.searchBackground, styles.horizontalFlex]}
-            onPress={() => dispatch(actions.isFocusedUpdate(true))}>
+            style={[listStyles.searchBackground, styles.horizontalFlex]}>
             <Icon name="search" size={18} />
             <TextInput
               style={styles.textInput}
               onChangeText={text => {
                 dispatch(actions.searchInputUpdate(text));
               }}
-              focusable={state.isFocused}
               value={state.searchInput}
               placeholder={constants.PLACEHOLDER_CONSTANT}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleSearch} style={styles.searchButton}>
+          <TouchableOpacity onPress={fetchData} style={styles.searchButton}>
             <Text style={styles.textBold}>Search</Text>
           </TouchableOpacity>
         </View>
@@ -204,7 +205,22 @@ const WithComponentList = (Component: JSX.Element) => {
                 Oops, No users to display!
               </Text>
             }
-            onEndReached={fetchMoreData}
+            ListFooterComponent={
+              state.isFetching ? (
+                <View style={[styles.horizontalFlex, listStyles.loading]}>
+                  <Image
+                    source={loadingImage}
+                    style={listStyles.bottomFeatchImage}
+                    resizeMode="stretch"
+                  />
+                </View>
+              ) : (
+                <View />
+              )
+            }
+            onEndReachedThreshold={1}
+            onScrollEndDrag={fetchData}
+            scrollEventThrottle={1000}
           />
         )}
       </View>
@@ -227,9 +243,13 @@ const listStyles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   loadingImage: {
-    height: '30%',
-    width: '30%',
+    height: '10%',
+    width: '10%',
     alignSelf: 'center',
+  },
+  bottomFeatchImage: {
+    height: 50,
+    width: 50,
   },
   body: {
     width: '100%',
@@ -243,6 +263,10 @@ const listStyles = StyleSheet.create({
     paddingHorizontal: '2%',
     borderRadius: 10,
     width: '74%',
+  },
+  loading: {
+    backgroundColor: constants.WHITE,
+    justifyContent: 'center',
   },
 });
 export default WithComponentList;

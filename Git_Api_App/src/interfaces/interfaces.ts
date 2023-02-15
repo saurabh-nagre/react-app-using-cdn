@@ -5,9 +5,15 @@ export interface Navigation {
 }
 
 export interface Route {
-  params: Object;
+  params: {
+    details: Details;
+  };
 }
 
+export interface Action {
+  type: string;
+  payload: Details[] | boolean | string | number;
+}
 export interface Arguments {
   userList: Details[];
   page: number;
@@ -15,7 +21,7 @@ export interface Arguments {
   searchInput: string;
   url: string;
   isRefreshing: boolean;
-  isFocused: boolean;
+  isFetching: boolean;
 }
 
 export interface Details {

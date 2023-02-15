@@ -1,4 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
+
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 import UserCardMain from './userCardMain';
@@ -12,26 +13,35 @@ import * as helpers from '../helpers/helpers';
 
 import {styles} from './styles';
 // it gets the props as a object, which is response of https://api.github.com/users
-const UserCard = ({details}: {details: Details}) => {
-  const [userDetails, setUserDetails] = useState();
+const UserCard = ({
+  details,
+  fetchRequired = true,
+}: {
+  details: Details;
+  fetchRequired: boolean;
+}) => {
+  const [userDetails, setUserDetails] = useState<Details>();
 
   const navigation = useContext<Navigation>(NavigationContext);
 
   useEffect(() => {
-    const methodCall = async () => {
-      await helpers
+    if (fetchRequired) {
+      helpers
         .GetDataHelper(constants.USER_LIST_API_ENDPOINT + '/' + details.login)
         .then(value => setUserDetails(value.data))
         .catch(reason => console.debug(reason));
-    };
-    // methodCall();
-  }, [details]);
+    } else {
+      setUserDetails(details);
+    }
+  }, [details, fetchRequired]);
 
   const navigateToUserDetails = () => {
-    navigation.navigate(constants.USERDETAILS, {details: userDetails});
+    fetchRequired
+      ? navigation.navigate(constants.USERDETAILS, {details: userDetails})
+      : navigation.replace(constants.USERDETAILS, {details, userDetails});
   };
 
-  return details ? (
+  return userDetails ? (
     <TouchableOpacity
       style={[styles.horizontalFlex, styles.card]}
       onPress={() => navigateToUserDetails()}>
@@ -48,9 +58,9 @@ const UserCard = ({details}: {details: Details}) => {
         <Text style={[styles.text, styles.textBold]}>{details.login}</Text>
       </View>
 
-      {/* <View style={[styles.verticalFlex, cardStyles.cardLeft]}>
+      <View style={[styles.verticalFlex, cardStyles.cardLeft]}>
         <UserCardMain details={userDetails} align="flex-start" />
-      </View> */}
+      </View>
     </TouchableOpacity>
   ) : (
     <View />

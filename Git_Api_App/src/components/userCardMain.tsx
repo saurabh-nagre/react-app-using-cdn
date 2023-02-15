@@ -23,7 +23,11 @@ const UserCardMain = ({details, align}: {details: Details; align: string}) => {
       style={{
         alignItems: align,
       }}>
-      <Text style={[styles.textBold, styles.bigText]}>{details.name}</Text>
+      {details.name ? (
+        <Text style={[styles.textBold, styles.bigText]}>{details.name}</Text>
+      ) : (
+        <View />
+      )}
 
       <View style={styles.horizontalFlex} onTouchEnd={() => moveToTabView()}>
         <Icon
@@ -53,18 +57,24 @@ const UserCardMain = ({details, align}: {details: Details; align: string}) => {
         <Text style={styles.text}>{'< >'} Gists</Text>
         <Text style={[styles.text, styles.circle]}>{details.public_gists}</Text>
       </View>
-
-      <View style={styles.horizontalFlex}>
-        <Icon name="office-building-outline" size={16} />
-        <Text numberOfLines={2} style={styles.text}>
-          {details.company}
-        </Text>
-      </View>
-
-      <View style={styles.horizontalFlex}>
-        <Octicons name="location" size={15} color={constants.BLACK} />
-        <Text style={styles.text}>{details.location}</Text>
-      </View>
+      {details.company ? (
+        <View style={styles.horizontalFlex}>
+          <Icon name="office-building-outline" size={16} />
+          <Text numberOfLines={2} style={styles.text}>
+            {details.company}
+          </Text>
+        </View>
+      ) : (
+        <View />
+      )}
+      {details.location ? (
+        <View style={styles.horizontalFlex}>
+          <Octicons name="location" size={15} color={constants.BLACK} />
+          <Text style={styles.text}>{details.location}</Text>
+        </View>
+      ) : (
+        <View />
+      )}
     </View>
   );
 };

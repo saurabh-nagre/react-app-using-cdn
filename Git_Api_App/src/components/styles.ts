@@ -4,6 +4,8 @@ import * as constants from '../constants/constants';
 
 export const styles = StyleSheet.create({
   image: {
+    minHeight: 100,
+    minWidth: 100,
     height: constants.IMAGE_HEIGHT_LONG,
     width: constants.IMAGE_WIDTH_LONG,
     borderRadius: constants.IMAGE_BORDER_RADIUS,
@@ -72,8 +74,8 @@ export const styles = StyleSheet.create({
   },
   textInput: {
     fontSize: 18,
-    width: '100%',
     color: constants.BLACK,
+    paddingRight: '5%',
   },
   headerText: {
     fontSize: 25,

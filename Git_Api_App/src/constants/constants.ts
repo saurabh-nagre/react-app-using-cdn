@@ -3,11 +3,12 @@ export const SPLASH = 'Splash';
 export const USERLIST = 'UserList';
 export const USERDETAILS = 'Details';
 export const TABVIEW = 'Tabview';
+export const FAVOURITE = 'Favourite';
 
 // APIs
 export const SUCCESS = 'SUCCESS';
 export const FAILED = 'FAILED';
-export const USER_LIST_API_ENDPOINT = 'https://api.github.com/users?';
+export const USER_LIST_API_ENDPOINT = 'https://api.github.com/users';
 export const USER_SEARCH_LIST_API_ENDPOINT =
   'https://api.github.com/search/users';
 
@@ -29,6 +30,7 @@ export const BLACK = '#000';
 export const WHITE = '#fff';
 export const LIGHTGREY = '#d4d4d4';
 export const BLUE = '#3366CC';
+export const RED = '#ff0026';
 
 // text constants
 
@@ -42,4 +44,8 @@ export const UPDATE_SEARCH_INPUT = 'UpdateSearchInput';
 export const UPDATE_URL = 'UpdateUrl';
 export const UPDATE_IS_REFRESHING = 'UpdateIsRefreshing';
 export const INCREASE_PAGE_NO = 'IncreasePageNo';
-export const UPDATE_IS_FOCUSED = 'UpdateIsFocused';
+export const UPDATE_IS_FEACHING = 'UpdateIsFeaching';
+
+// favourite actions types
+export const INSERT_FAVOURITE_PROFILE = 'InsertFavouriteUser';
+export const REMOVE_FAVOURITE_PROFILE = 'RemoveFavouriteUser';

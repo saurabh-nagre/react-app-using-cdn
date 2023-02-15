@@ -34,7 +34,7 @@ export const isRefreshingUpdate = (data: boolean) => ({
   payload: data,
 });
 
-export const isFocusedUpdate = (data: boolean) => ({
-  type: constants.UPDATE_IS_FOCUSED,
+export const isFechingUpdate = (data: boolean) => ({
+  type: constants.UPDATE_IS_FEACHING,
   payload: data,
 });

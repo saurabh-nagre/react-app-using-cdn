@@ -1,11 +1,8 @@
-import {setup} from 'axios-cache-adapter';
+import axios from 'axios';
 
-const api = setup({
-  cache: {
-    maxAge: 15 * 60 * 1000,
-  },
-});
 export const GetDataHelper = (url: string) => {
-  console.debug(url);
-  return api.get(url);
+  // console.debug(url);
+  return axios.get(url, {
+    headers: {Authorization: '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'},
+  });
 };

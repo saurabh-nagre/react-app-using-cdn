@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
 import UserDetailCard from '../components/userDetailCard';
 
@@ -24,10 +24,19 @@ const UserDetails = ({
 
   return details ? (
     <NavigationContext.Provider value={navigation}>
-      <UserDetailCard details={details} />
+      <View style={styles.body}>
+        <UserDetailCard details={details} />
+      </View>
     </NavigationContext.Provider>
   ) : (
     <View />
   );
 };
+
+const styles = StyleSheet.create({
+  body: {
+    height: '100%',
+    backgroundColor: 'white',
+  },
+});
 export default UserDetails;

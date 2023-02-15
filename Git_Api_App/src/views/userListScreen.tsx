@@ -1,5 +1,7 @@
 import React from 'react';
 
+import {Keyboard, TouchableWithoutFeedback} from 'react-native';
+
 import ListComponent from '../components/listComponent';
 
 import {NavigationContext} from '../contexts/NavigationContext';
@@ -7,7 +9,6 @@ import {NavigationContext} from '../contexts/NavigationContext';
 import {Navigation} from '../interfaces/interfaces';
 
 import * as constant from '../constants/constants';
-import {Keyboard, TouchableWithoutFeedback} from 'react-native';
 
 const UserList = ({navigation}: {navigation: Navigation}) => {
   return (
