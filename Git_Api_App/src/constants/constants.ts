@@ -46,6 +46,9 @@ export const UPDATE_IS_REFRESHING = 'UpdateIsRefreshing';
 export const INCREASE_PAGE_NO = 'IncreasePageNo';
 export const UPDATE_IS_FEACHING = 'UpdateIsFeaching';
 
+//helper constants
+export const CHANGE_NETWORK_STATUS = 'CHANGE_NETWORK_STATUS';
+
 // favourite actions types
 export const INSERT_FAVOURITE_PROFILE = 'InsertFavouriteUser';
 export const REMOVE_FAVOURITE_PROFILE = 'RemoveFavouriteUser';

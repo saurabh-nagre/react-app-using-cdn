@@ -55,7 +55,6 @@ const UserCard = ({
           style={styles.image}
           resizeMode="contain"
         />
-        <Text style={[styles.text, styles.textBold]}>{details.login}</Text>
       </View>
 
       <View style={[styles.verticalFlex, cardStyles.cardLeft]}>
